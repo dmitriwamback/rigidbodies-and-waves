@@ -11,12 +11,19 @@
 #include <GL/glew.h>
 #include <glfw3.h>
 
+#include <ft2build.h>
+#include FT_FREETYPE_H
+
 GLFWwindow* window;
 float debugTime;
+FT_Face face;
+
+#define THETA_UNICODE 0x0398
 
 #include <fstream>
 #include <sstream>
 #include <vector>
+#include <map>
 
 #include <glm/glm.hpp>
 #include <glm/mat4x4.hpp>
@@ -27,6 +34,11 @@ float debugTime;
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "object/shader.h"
+
+glm::mat4 testProjection;
+Shader triangleShader, textShader;
+
+#include "object/text.h"
 #include "object/vertex.h"
 #include "math/force.h"
 #include "object/gameobjects/debug_triangle.h"
@@ -44,14 +56,34 @@ void initialize() {
     window = glfwCreateWindow(1200, 800, "Rigidbodies", nullptr, nullptr);
     glfwMakeContextCurrent(window);
     
+    int width, height;
+    glfwGetFramebufferSize(window, &width, &height);
+    glViewport(0, 0, width, height);
+
+    
     glewExperimental = GL_TRUE;
     glewInit();
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_PROGRAM_POINT_SIZE);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     
-    Shader shader = Shader::Create("/Users/dmitriwamback/Documents/Projects/rigidbodies-and-waves/rigidbodies-and-waves/shader/debug2D");
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+    
+    FT_Library ft;
+    if (FT_Init_FreeType(&ft)) {
+        std::cout << "ERROR::FREETYPE: Could not init FreeType Library" << std::endl;
+    }
+    
+    if (FT_New_Face(ft, "/Users/dmitriwamback/Documents/Projects/rigidbodies-and-waves/rigidbodies-and-waves/fonts/computer-modern/cmunci.ttf", 0, &face)) {
+        std::cout << "ERROR::FREETYPE: Failed to load font" << std::endl;
+    }
+    FT_Set_Pixel_Sizes(face, 0, 48);
+    
+    triangleShader = Shader::Create("/Users/dmitriwamback/Documents/Projects/rigidbodies-and-waves/rigidbodies-and-waves/shader/debug2D");
+    textShader = Shader::Create("/Users/dmitriwamback/Documents/Projects/rigidbodies-and-waves/rigidbodies-and-waves/shader/text");
     Debug2DTriangle triangle = Debug2DTriangle::Create(2.0f, 2.0f);
-    glm::mat4 testProjection = glm::perspective(glm::radians(90.0f), 1200.0f/800.0f, 1000.0f, 0.1f);
+    testProjection = glm::perspective(glm::radians(90.0f), 1200.0f/800.0f, 1000.0f, 0.1f);
     
     while (!glfwWindowShouldClose(window)) {
         glClearColor(0.0, 0.0, 0.0, 0.0);
@@ -61,11 +93,11 @@ void initialize() {
         glfwGetFramebufferSize(window, &width, &height);
         
         testProjection = glm::perspective(glm::radians(90.0f), (float)width/(float)height, 1000.0f, 0.1f);
-        shader.Use();
-        shader.SetMatrix4("projection", testProjection);
+        triangleShader.Use();
+        triangleShader.SetMatrix4("projection", testProjection);
         
-        triangle.rotation += glm::vec3(0.0f, 0.0f, 0.5f);
-        triangle.Render(shader);
+        //triangle.UpdateGeometry(3.0f, 2.5f * (cos(debugTime)+1.0f)/2.0f + 0.5f);
+        triangle.Render(triangleShader);
         
         debugTime += 0.01f;
         

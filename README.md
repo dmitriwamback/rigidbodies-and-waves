@@ -2,7 +2,7 @@
 
 <p>This repository will cover the basics of kinematics, energy and dynamics.
 
-<img width="1187" alt="Image" src="https://github.com/user-attachments/assets/9f423e66-cec8-4c39-8652-6c7f1249f49d" />
+<img width="1191" alt="Image" src="https://github.com/user-attachments/assets/7dfc0dc6-a83b-4487-9ff3-a487c60974ab" />
 
 ## Useful formulas
 

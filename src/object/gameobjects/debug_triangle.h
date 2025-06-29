@@ -26,6 +26,7 @@ private:
     uint32_t vertexArrayObject, vertexBufferObject,
              normalVertexArrayObject, normalVertexBufferObject,
              gravityVertexArrayObject, gravityVertexBufferObject;
+    std::vector<Text> forceLabels;
 };
 
 Debug2DTriangle Debug2DTriangle::Create(float width, float height, float friction = 0.0f) {
@@ -33,7 +34,7 @@ Debug2DTriangle Debug2DTriangle::Create(float width, float height, float frictio
     
     triangle.scale = glm::vec3(1.0f);
     triangle.position = glm::vec3(0.0f, 0.0f, -1.0f);
-    triangle.rotation = glm::vec3(0.0f, 0.0f, 10.0f);
+    triangle.rotation = glm::vec3(0.0f, 0.0f, 0.0f);
     
     glGenVertexArrays(1, &triangle.vertexArrayObject);
     glGenVertexArrays(1, &triangle.normalVertexArrayObject);
@@ -115,6 +116,17 @@ void Debug2DTriangle::Render(Shader shader) {
         glDrawArrays(GL_LINES, 0, 2);
     }
     
+    {
+        textShader.Use();
+        textShader.SetMatrix4("projection", testProjection);
+        textShader.SetVector3("color", glm::vec3(1.0f, 1.0f, 1.0f));
+        forceLabels[0].position = normalVertices[1].vertex;
+        forceLabels[0].Render(textShader);
+        
+        forceLabels[1].position = gravityVertices[1].vertex;
+        forceLabels[1].Render(textShader);
+    }
+    
     glBindVertexArray(0);
     glEnable(GL_DEPTH_TEST);
 }
@@ -159,6 +171,11 @@ void Debug2DTriangle::CalculateForces() {
             Vertex(center + position, glm::vec3(0.0f), glm::vec2(0.0f)),
             Vertex(normalForce.direction + center + position, glm::vec3(0.0f), glm::vec2(0.0f))
         };
+        
+        if (forceLabels.size() != 2) {
+            Text text = Text::CreateText((unsigned char*)"N = mgcosC");
+            forceLabels.push_back(text);
+        }
     }
     {
         Force gravitationalForce = ComputeGravitationalForceFromPlane(0.5f, inclination);
@@ -167,6 +184,11 @@ void Debug2DTriangle::CalculateForces() {
             Vertex(center + position, glm::vec3(0.0f), glm::vec2(0.0f)),
             Vertex(gravitationalForce.direction + center + position, glm::vec3(0.0f), glm::vec2(0.0f))
         };
+        
+        if (forceLabels.size() != 2) {
+            Text text = Text::CreateText((unsigned char*)"F = -mgsinC");
+            forceLabels.push_back(text);
+        }
     }
     
     UploadVertices(normalVertices,  normalVertexArrayObject,    normalVertexBufferObject);
