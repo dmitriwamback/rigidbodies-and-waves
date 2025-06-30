@@ -4,6 +4,7 @@
 
 <img width="1191" alt="Image" src="https://github.com/user-attachments/assets/7dfc0dc6-a83b-4487-9ff3-a487c60974ab" />
 <img width="1192" alt="Image" src="https://github.com/user-attachments/assets/4ba1bbbf-bce3-4468-afad-7ca8005ba7c7" />
+
 ## Useful formulas
 
 $$ ax^2 + bx + c $$
