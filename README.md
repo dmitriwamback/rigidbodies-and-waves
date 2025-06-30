@@ -222,8 +222,8 @@ $τ_{net} = \sum τ_n = Iα$
 $τ = rFsin(ϕ)$
 
 ### Inertia of a rod where $L$ is the length of the rod, $M$ is the mass of the rod and $h$ is the pivot of the rod
-$$ I = \int_{-h}^{L-h} x^{2}dm → \int_{-h}^{L-h} x^{2}λdx → λ\int_{-h}^{L-h} x^{2}dx → \frac{M}{L}\int_{-h}^{L-h} x^{2}dx → \frac{Mx^{3}}{3L}_{-h}^{L-h} → \frac{M(L-h)^3}{3L} + \frac{Mh}{3L} $$
-$$ I = \frac{M(L-h)^3}{3L} + \frac{Mh}{3L} $$
+$$ I = \int_{-h}^{L-h} x^{2}dm → \int_{-h}^{L-h} x^{2}λdx → λ\int_{-h}^{L-h} x^{2}dx → \frac{M}{L}\int_{-h}^{L-h} x^{2}dx → \frac{Mx^{3}}{3L}_{-h}^{L-h} → \frac{M(L-h)^3}{3L} + \frac{Mh^3}{3L} $$
+$$ I = \frac{M(L-h)^3}{3L} + \frac{Mh^3}{3L} $$
 
 ### Parallel Axis Theorem
 
