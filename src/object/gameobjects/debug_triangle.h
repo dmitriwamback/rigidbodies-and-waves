@@ -8,43 +8,33 @@
 #ifndef debug_triangle_h
 #define debug_triangle_h
 
-class Debug2DTriangle {
+class Debug2DTriangle: public PhysicsObject2D {
 public:
-    float width, height, friction;
-    glm::vec3 position, scale, rotation;
-    
-    static Debug2DTriangle Create(float width, float height, float friction);
-    void Render(Shader shader);
-    void RenderNormal(Shader shader);
-    void UpdateGeometry(float width, float height);
-    void CalculateForces();
-    glm::vec3 GetRotationDegrees();
-    glm::mat4 CreateModelMatrix();
-private:
-    void UploadVertices(std::vector<Vertex> points, uint32_t vao, uint32_t vbo);
-    std::vector<Vertex> vertices, normalVertices, gravityVertices;
-    uint32_t vertexArrayObject, vertexBufferObject,
-             normalVertexArrayObject, normalVertexBufferObject,
-             gravityVertexArrayObject, gravityVertexBufferObject;
-    std::vector<Text> forceLabels;
+    static PhysicsObject2D* Create(float width, float height, float friction);
+    void Render(Shader shader)                      override;
+    void RenderNormal(Shader shader)                override;
+    void UpdateGeometry(float width, float height)  override;
+    void CalculateForces()                          override;
+    glm::vec3 GetRotationDegrees()                  override;
 };
 
-Debug2DTriangle Debug2DTriangle::Create(float width, float height, float friction = 0.0f) {
-    Debug2DTriangle triangle;
+PhysicsObject2D* Debug2DTriangle::Create(float width, float height, float friction = 0.0f) {
+    PhysicsObject2D* triangle = new Debug2DTriangle();
     
-    triangle.scale = glm::vec3(1.0f);
-    triangle.position = glm::vec3(0.0f, 0.0f, -1.0f);
-    triangle.rotation = glm::vec3(0.0f, 0.0f, 0.0f);
+    triangle->scale         = glm::vec3(1.0f);
+    triangle->position      = glm::vec3(0.0f, 0.0f, -1.0f);
+    triangle->rotation      = glm::vec3(0.0f, 0.0f, 0.0f);
+    triangle->physicsType   = InclinedPlane;
     
-    glGenVertexArrays(1, &triangle.vertexArrayObject);
-    glGenVertexArrays(1, &triangle.normalVertexArrayObject);
-    glGenVertexArrays(1, &triangle.gravityVertexArrayObject);
+    glGenVertexArrays(1, &triangle->vertexArrayObject);
+    glGenVertexArrays(1, &triangle->normalVertexArrayObject);
+    glGenVertexArrays(1, &triangle->gravityVertexArrayObject);
     
-    glGenBuffers(1, &triangle.vertexBufferObject);
-    glGenBuffers(1, &triangle.normalVertexBufferObject);
-    glGenBuffers(1, &triangle.gravityVertexBufferObject);
+    glGenBuffers(1, &triangle->vertexBufferObject);
+    glGenBuffers(1, &triangle->normalVertexBufferObject);
+    glGenBuffers(1, &triangle->gravityVertexBufferObject);
     
-    triangle.UpdateGeometry(width, height);
+    triangle->UpdateGeometry(width, height);
     
     return triangle;
 }
@@ -65,20 +55,6 @@ void Debug2DTriangle::UpdateGeometry(float width, float height) {
     CalculateForces();
     
     UploadVertices(vertices, vertexBufferObject, vertexArrayObject);
-}
-
-void Debug2DTriangle::UploadVertices(std::vector<Vertex> points, uint32_t vao, uint32_t vbo) {
-    glBindVertexArray(vao);
-    
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, points.size() * sizeof(Vertex), points.data(), GL_STATIC_DRAW);
-    
-    glEnableVertexAttribArray(0);
-    glEnableVertexAttribArray(1);
-    glEnableVertexAttribArray(2);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, vertex));
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, normal));
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, uv));
 }
 
 void Debug2DTriangle::Render(Shader shader) {
@@ -136,25 +112,6 @@ glm::vec3 Debug2DTriangle::GetRotationDegrees() {
     return glm::vec3(0.0f, 0.0f, zAngle);
 }
 
-
-glm::mat4 Debug2DTriangle::CreateModelMatrix() {
-    
-    glm::mat4 model = glm::mat4(1.0f);
-    glm::mat4 translationMatrix = glm::mat4(1.0f);
-    translationMatrix = glm::translate(translationMatrix, position);
-    
-    glm::mat4 scaleMatrix = glm::mat4(1.0f);
-    scaleMatrix = glm::scale(scaleMatrix, scale);
-    
-    glm::mat4 rotationMatrix = glm::rotate(glm::mat4(1.0f), glm::radians(rotation.x), glm::vec3(1, 0, 0)) *
-                               glm::rotate(glm::mat4(1.0f), glm::radians(rotation.y), glm::vec3(0, 1, 0)) *
-                               glm::rotate(glm::mat4(1.0f), glm::radians(rotation.z), glm::vec3(0, 0, 1));
-    
-    model = translationMatrix * rotationMatrix * scaleMatrix;
-    
-    return model;
-}
-
 void Debug2DTriangle::CalculateForces() {
     
     float deltaWidth = (vertices[0].vertex.x + vertices[1].vertex.x)/2.0f;
@@ -194,6 +151,8 @@ void Debug2DTriangle::CalculateForces() {
     UploadVertices(normalVertices,  normalVertexArrayObject,    normalVertexBufferObject);
     UploadVertices(gravityVertices, gravityVertexArrayObject,   gravityVertexBufferObject);
 }
+
+void Debug2DTriangle::RenderNormal(Shader shader) {}
 
 
 #endif /* debug_triangle_h */

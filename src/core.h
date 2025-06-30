@@ -41,6 +41,7 @@ Shader triangleShader, textShader;
 #include "object/text.h"
 #include "object/vertex.h"
 #include "math/force.h"
+#include "object/gameobjects/physics_object_2d.h"
 #include "object/gameobjects/debug_triangle.h"
 
 void initialize() {
@@ -82,7 +83,9 @@ void initialize() {
     
     triangleShader = Shader::Create("/Users/dmitriwamback/Documents/Projects/rigidbodies-and-waves/rigidbodies-and-waves/shader/debug2D");
     textShader = Shader::Create("/Users/dmitriwamback/Documents/Projects/rigidbodies-and-waves/rigidbodies-and-waves/shader/text");
-    Debug2DTriangle triangle = Debug2DTriangle::Create(2.0f, 2.0f);
+    
+    PhysicsObject2D* triangle = Debug2DTriangle::Create(5.0f, 2.0f);
+    
     testProjection = glm::perspective(glm::radians(90.0f), 1200.0f/800.0f, 1000.0f, 0.1f);
     
     while (!glfwWindowShouldClose(window)) {
@@ -95,9 +98,7 @@ void initialize() {
         testProjection = glm::perspective(glm::radians(90.0f), (float)width/(float)height, 1000.0f, 0.1f);
         triangleShader.Use();
         triangleShader.SetMatrix4("projection", testProjection);
-        
-        //triangle.UpdateGeometry(3.0f, 2.5f * (cos(debugTime)+1.0f)/2.0f + 0.5f);
-        triangle.Render(triangleShader);
+        triangle->Render(triangleShader);
         
         debugTime += 0.01f;
         
