@@ -84,7 +84,7 @@ void initialize() {
     triangleShader = Shader::Create("/Users/dmitriwamback/Documents/Projects/rigidbodies-and-waves/rigidbodies-and-waves/shader/debug2D");
     textShader = Shader::Create("/Users/dmitriwamback/Documents/Projects/rigidbodies-and-waves/rigidbodies-and-waves/shader/text");
     
-    PhysicsObject2D* triangle = Debug2DTriangle::Create(5.0f, 2.0f);
+    PhysicsObject2D* triangle = Debug2DTriangle::Create(2.5f, 1.5f);
     
     testProjection = glm::perspective(glm::radians(90.0f), 1200.0f/800.0f, 1000.0f, 0.1f);
     

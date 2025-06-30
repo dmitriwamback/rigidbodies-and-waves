@@ -17,15 +17,15 @@ struct Character {
 
 class Text {
 public:
-    std::vector<Character> characters;
-    static Text CreateText(unsigned char* text);
-    void Render(Shader shader);
+    std::map<char, Character> characters;
+    static Text CreateText();
+    void Render(Shader shader, std::string text);
     glm::vec3 position;
 public:
     uint32_t vertexArrayObject, vertexBufferObject;
 };
 
-Text Text::CreateText(unsigned char *text) {
+Text Text::CreateText() {
     Text textObject = Text();
     
     textObject.position = glm::vec3(0.0f);
@@ -41,12 +41,11 @@ Text Text::CreateText(unsigned char *text) {
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), 0);
     
-    for (int i = 0; text[i] != '\0'; i++) {
+    for (unsigned char i = 0; i < 128; i++) {
         
-        if (FT_Load_Char(face, text[i], FT_LOAD_RENDER)) {
+        if (FT_Load_Char(face, i, FT_LOAD_RENDER)) {
             continue;
         }
-        std::cout << "loaded " << text[i] << '\n';
         
         unsigned int texture;
         glGenTextures(1, &texture);
@@ -74,13 +73,13 @@ Text Text::CreateText(unsigned char *text) {
             static_cast<unsigned int>(face->glyph->advance.x)
         };
         
-        textObject.characters.push_back(character);
+        textObject.characters.insert(std::pair<char, Character>(i, character));
     }
     
     return textObject;
 }
 
-void Text::Render(Shader shader) {
+void Text::Render(Shader shader, std::string text) {
         
     shader.Use();
     glBindVertexArray(vertexArrayObject);
@@ -90,7 +89,10 @@ void Text::Render(Shader shader) {
     float x = position.x;
     float y = position.y;
     
-    for (Character character : characters) {
+    for (std::string::const_iterator c = text.begin(); c != text.end(); c++) {
+        
+        Character character = characters[*c];
+        
         float xpos = x + character.Bearing.x * scale;
         float ypos = y + character.Bearing.y * scale;
 

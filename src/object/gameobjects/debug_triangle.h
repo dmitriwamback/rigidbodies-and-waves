@@ -10,6 +10,9 @@
 
 class Debug2DTriangle: public PhysicsObject2D {
 public:
+    
+    Force normalForce, gravitationalForce;
+    
     static PhysicsObject2D* Create(float width, float height, float friction);
     void Render(Shader shader)                      override;
     void RenderNormal(Shader shader)                override;
@@ -95,12 +98,12 @@ void Debug2DTriangle::Render(Shader shader) {
     {
         textShader.Use();
         textShader.SetMatrix4("projection", testProjection);
-        textShader.SetVector3("color", glm::vec3(1.0f, 1.0f, 1.0f));
+        textShader.SetVector3("color", glm::vec3(0.7f, 0.7f, 0.7f));
         forceLabels[0].position = normalVertices[1].vertex;
-        forceLabels[0].Render(textShader);
+        forceLabels[0].Render(textShader, "N = mgcosC = " + std::to_string(normalForce.newtons) + "N");
         
         forceLabels[1].position = gravityVertices[1].vertex;
-        forceLabels[1].Render(textShader);
+        forceLabels[1].Render(textShader, "F = -mgsinC = " + std::to_string(-gravitationalForce.newtons) + "N");
     }
     
     glBindVertexArray(0);
@@ -122,28 +125,28 @@ void Debug2DTriangle::CalculateForces() {
     glm::vec3 inclination = GetRotationDegrees() + glm::vec3(0.0f, 0.0f, rotation.z);
     
     {
-        Force normalForce = ComputeNormalForceFromPlane(0.5f, inclination);
+        normalForce = ComputeNormalForceFromPlane(0.5f, inclination);
         
         normalVertices = {
             Vertex(center + position, glm::vec3(0.0f), glm::vec2(0.0f)),
-            Vertex(normalForce.direction + center + position, glm::vec3(0.0f), glm::vec2(0.0f))
+            Vertex(normalForce.direction * 0.5f + center + position, glm::vec3(0.0f), glm::vec2(0.0f))
         };
         
         if (forceLabels.size() != 2) {
-            Text text = Text::CreateText((unsigned char*)"N = mgcosC");
+            Text text = Text::CreateText();
             forceLabels.push_back(text);
         }
     }
     {
-        Force gravitationalForce = ComputeGravitationalForceFromPlane(0.5f, inclination);
+        gravitationalForce = ComputeGravitationalForceFromPlane(0.5f, inclination);
         
         gravityVertices = {
             Vertex(center + position, glm::vec3(0.0f), glm::vec2(0.0f)),
-            Vertex(gravitationalForce.direction + center + position, glm::vec3(0.0f), glm::vec2(0.0f))
+            Vertex(gravitationalForce.direction * 0.5f + center + position, glm::vec3(0.0f), glm::vec2(0.0f))
         };
         
         if (forceLabels.size() != 2) {
-            Text text = Text::CreateText((unsigned char*)"F = -mgsinC");
+            Text text = Text::CreateText();
             forceLabels.push_back(text);
         }
     }
